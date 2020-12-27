@@ -9,7 +9,7 @@ app = Flask(__name__,
             static_url_path="/static",
             static_folder="static")
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s [%(levelname)s] (%(threadName)-10s) %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] (%(threadName)-10s) %(message)s')
 logger = logging.getLogger(__name__)
 
 SERVER = os.getenv("KC_SERVER")
