@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+ 
+  <link href="/static/styles.css" rel="stylesheet">
+  <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/static/datatables/datatables.min.css" rel="stylesheet">
+
+  <script src="/static/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/static/jquery-3.5.1.js"></script>
+  <script src="/static/datatables/datatables.min.js"></script>
+
+
+  <script>
+    function loadUsers(realm) {
+      $("#users").DataTable().destroy()
+      $("#users").DataTable( {
+        "processing": true,
+        "ajax": {
+          url: "/api/users",
+          method: "GET",
+          dataType: "json",
+          data: {
+            realm: realm
+          }
+        },
+        "columns": [
+            { "data": "username" },
+            { "data": "email", 
+            defaultContent: "no email address"
+            },
+            { "data": "createdTimestamp",
+              render: function(data, type, row) {
+                const dateObject = new Date(data);
+                const humanDateFormat = dateObject.toLocaleString();
+                return humanDateFormat;
+              } 
+            }
+        ]
+      } );
+    }
+
+    $(function () {
+      console.log("Document loaded");
+
+      // init table
+      $("#users").DataTable();
+
+      // get realms
+      $.get("/api/realms",
+        function(data) {
+          var sel = $("#selectedRealm");
+          sel.empty();
+          $.each(data.data, function(key, val) {
+            sel.append($("<option>").val(val).text(val));
+          });
+          //loadUsers(data.data[0]);
+        }
+      , "json");
+
+      // register select listener
+      $("#selectedRealm").on("change", function () {
+        loadUsers(this.value);
+      });
+    });
+  </script>
+
+  <title>Keycloak User Browser</title>
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Keycloak User Browser</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/">Home</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="margin-top: 20px;">
+    
+    <form>
+      <div class="mb-3">
+        <label for="selectedRealm" class="form-label">Realm</label>
+        <select id="selectedRealm" class="form-select" aria-label="Select the realm">
+          
+        </select>
+      </div>
+    </form>
+
+  </div>
+
+  <div class="container" style="margin-top: 20px;">
+
+    <table id="users" class="display" style="width:100%">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Email Address</th>
+          <th>Date Created</th>
+        </tr>
+      </thead>
+    </table>
+
+  </div>
+
+</body>
+</html>
